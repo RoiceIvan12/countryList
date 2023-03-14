@@ -1,31 +1,4 @@
-Requirements:
-• Create a repository using GIT and push your work to a remote (e.g., GitHub, Gitlab).
-• Fetch the data from the endpoint. (DONE)
-• Display a list for the data. (DONE)
-• Make the list sortable alphabetically by name (ascending, descending). (DONE)
-• Implement a filter(s) that filters countries:
-    - That are smaller than Lithuania by area.(DONE)
-    - That are in “Oceania” region
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -124,8 +97,27 @@ const CountryList = () => {
     }
   });
   
+
+
+
+  
+
+  const indexOfLastCountry = currentPage * countriesPerPage;
+  const indexOfFirstCountry = indexOfLastCountry - countriesPerPage;
+  const currentCountries = sortedCountries.slice(
+    indexOfFirstCountry,
+    indexOfLastCountry
+  );
+  
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(sortedCountries.length / countriesPerPage); i++) {
+    pageNumbers.push(i)
+  }
+
+  const MAX_PAGES = 4;
   
   return (
+    <div className='table-wrapper'>
     <div>
       <h1>Country List</h1>
 
@@ -158,8 +150,9 @@ const CountryList = () => {
             <th>Area</th>
           </tr>
         </thead>
+        
         <tbody>
-          {sortedCountries.map(country => (
+          {currentCountries.map(country => (
             <tr key={country.name}>
               <td>{country.name}</td>
               <td>{country.region}</td>
@@ -168,9 +161,57 @@ const CountryList = () => {
           ))}
         </tbody>
       </table>
-    </div>
 
+
+    <div className="pagination">
+
+    <button
+      disabled = {currentPage === 1}
+      onClick = {() => setCurrentPage(currentPage - 1)}
+    >
+      {"<"}
+    </button>
+
+    {pageNumbers.map((number) => {
+      let lowerLimit, upperLimit;
+
+      if (pageNumbers.length <= MAX_PAGES) {
+        lowerLimit = 1;
+        upperLimit = pageNumbers.length;
+      } else {
+        lowerLimit = Math.max(1, currentPage - Math.floor(MAX_PAGES / 2));
+        upperLimit = Math.min(pageNumbers.length, lowerLimit + MAX_PAGES - 1);
+      }
+
+      if (number === 1 || number === pageNumbers || (number >= lowerLimit && number <= upperLimit)) {
+        return(
+          <button
+            key = {number}
+            className = {currentPage === number ? "active" : ""}
+            onClick = {() => setCurrentPage(number)}
+          >
+            {number}
+          </button>
+        );
+      }else if (number === lowerLimit -1 || number === upperLimit + 1 ){
+
+      }else {
+        return null;
+      }
+    })}
+
+    <button
+      disabled = {currentPage === pageNumbers[pageNumbers.length - 1]}
+      onClick={() => setCurrentPage(currentPage + 1)}
+    >
+      {">"}
+    </button>
+    
+    </div>
+  </div>
+</div>
   );
 };
+
 
 export default CountryList;
